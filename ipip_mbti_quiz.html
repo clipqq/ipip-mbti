@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPIP MBTI Assessment Quiz</title>
+  <style>
+    :root {
+      --bg: #f7f7f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --good: #ecfdf5;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 240px);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 18px 18px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      letter-spacing: -0.04em;
+    }
+    .subtitle {
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0;
+    }
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto 48px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 18px;
+      align-items: start;
+    }
+    .panel, .question-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .panel {
+      position: sticky;
+      top: 16px;
+      padding: 18px;
+    }
+    .type {
+      text-align: center;
+      background: var(--accent-soft);
+      border-radius: 16px;
+      padding: 18px 12px;
+      margin-bottom: 16px;
+    }
+    .type .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .type .code {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #1d4ed8;
+    }
+    .progress-wrap {
+      margin: 10px 0 16px;
+    }
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: #eef2f7;
+      overflow: hidden;
+    }
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.2s ease;
+    }
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 650;
+      color: var(--text);
+    }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    button:hover { filter: brightness(0.98); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: right;
+      border-bottom: 1px solid var(--line);
+      padding: 7px 4px;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-weight: 700; }
+    .letters {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .letter-box {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .letter-box strong {
+      display: block;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+    .letter-box span {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin: 12px 0 0;
+    }
+    .questions {
+      display: grid;
+      gap: 12px;
+    }
+    .question-card {
+      padding: 16px;
+    }
+    .q-head {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .q-num {
+      min-width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: #f3f4f6;
+      border-radius: 50%;
+      font-weight: 750;
+      color: var(--muted);
+    }
+    .q-text {
+      font-size: 1.02rem;
+      font-weight: 680;
+    }
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .choice {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 6px;
+      text-align: center;
+      cursor: pointer;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 3px;
+      background: #fff;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+    .choice:hover {
+      border-color: #93c5fd;
+      transform: translateY(-1px);
+    }
+    .choice input { display: none; }
+    .choice:has(input:checked) {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+    .choice strong { font-size: 1rem; }
+    .choice span { font-size: 0.72rem; color: var(--muted); }
+    .footer-actions {
+      text-align: center;
+      padding: 18px 0 0;
+    }
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .panel {
+        position: static;
+        order: -1;
+      }
+    }
+    @media (max-width: 640px) {
+      .scale { grid-template-columns: 1fr; }
+      .choice { min-height: auto; align-items: flex-start; padding: 11px 12px; }
+      .choice span { font-size: 0.82rem; }
+    }
+    @supports not selector(:has(*)) {
+      .choice.selected {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        box-shadow: inset 0 0 0 1px var(--accent);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IPIP MBTI Assessment Quiz</h1>
+    <p class="subtitle">
+      Rate each statement from 1 to 5. This app preserves the scoring logic from the spreadsheet: reverse-scored items are transformed as 6 − response, five dimension totals are standardized, and the final four-letter type is calculated from Extraversion, Openness, Agreeableness, and Conscientiousness.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section class="questions" id="questions"></section>
+
+    <aside class="panel" aria-live="polite">
+      <div class="type">
+        <div class="label">Current type</div>
+        <div class="code" id="typeCode">----</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="answeredCount">0</span> / 50 answered</div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" id="useDefaults">Use spreadsheet defaults</button>
+        <button id="clearAnswers">Clear</button>
+        <button id="exportResults">Export results</button>
+      </div>
+
+      <div class="letters" id="letters"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Scale</th>
+            <th>Total</th>
+            <th>Δ</th>
+            <th>Z</th>
+          </tr>
+        </thead>
+        <tbody id="scoreRows"></tbody>
+      </table>
+
+      <p class="note">
+        Calculation constants are copied from the workbook. Neuroticism is displayed as a standardized score but is not used in the final MBTI-style code.
+      </p>
+    </aside>
+  </main>
+
+  <script>
+    const APP_DATA = {
+  "items": [
+    {
+      "id": 1,
+      "text": "Am the life of the party",
+      "default": 3,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 2,
+      "text": "Feel a little concerned for others",
+      "default": 4,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 3,
+      "text": "I am always prepared",
+      "default": 3,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 4,
+      "text": "Get stressed out easily",
+      "default": 3,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 5,
+      "text": "Have a Rich vocabulary",
+      "default": 4,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 6,
+      "text": "Don’t talk a lot",
+      "default": 2,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 7,
+      "text": "I am interested in people",
+      "default": 5,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 8,
+      "text": "Leave my belongings around",
+      "default": 4,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 9,
+      "text": "Am relaxed most of the time",
+      "default": 4,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 10,
+      "text": "Have difficult difficulty understanding abstract ideas",
+      "default": 1,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 11,
+      "text": "Feel comfortable around people",
+      "default": 4,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 12,
+      "text": "Insult people",
+      "default": 2,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 13,
+      "text": "Pay attention to details",
+      "default": 4,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 14,
+      "text": "Worry about things",
+      "default": 3,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 15,
+      "text": "Have a vivid imagination",
+      "default": 4,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 16,
+      "text": "Keep in the background",
+      "default": 3,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 17,
+      "text": "Sympathize with others feeling",
+      "default": 5,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 18,
+      "text": "Make a mess of things",
+      "default": 3,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 19,
+      "text": "Seldom feel blue",
+      "default": 2,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 20,
+      "text": "I am not interested in abstract ideas",
+      "default": 1,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 21,
+      "text": "Start conversations",
+      "default": 3,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 22,
+      "text": "I am not interested in other people’s problems",
+      "default": 1,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 23,
+      "text": "Get chored done right away",
+      "default": 2,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 24,
+      "text": "I am easily disturbed",
+      "default": 2,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 25,
+      "text": "Have excellent ideas",
+      "default": 3,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 26,
+      "text": "Have Little to say",
+      "default": 1,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 27,
+      "text": "Have a soft heart",
+      "default": 3,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 28,
+      "text": "Often forget to put things back in their proper place",
+      "default": 4,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 29,
+      "text": "Get upset easily",
+      "default": 3,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 30,
+      "text": "Do not have a good imagination",
+      "default": 2,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 31,
+      "text": "Talk to a lot of different people at parties",
+      "default": 5,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 32,
+      "text": "I am not really interested in others",
+      "default": 1,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 33,
+      "text": "Like order",
+      "default": 3,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 34,
+      "text": "Change my mood a lot",
+      "default": 4,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 35,
+      "text": "I am quick to understand things",
+      "default": 4,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 36,
+      "text": "Don’t like to draw attention to myself",
+      "default": 2,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 37,
+      "text": "Take time out for others",
+      "default": 3,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 38,
+      "text": "Shirk my duties",
+      "default": 3,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 39,
+      "text": "Have frequent mood swings",
+      "default": 3,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 40,
+      "text": "Use difficult words",
+      "default": 3,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 41,
+      "text": "Don’t mind being the center of attention",
+      "default": 2,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 42,
+      "text": "Feel others emotions",
+      "default": 5,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 43,
+      "text": "Follow a schedule",
+      "default": 2,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 44,
+      "text": "Get irritated easily",
+      "default": 3,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 45,
+      "text": "Spend time reflecting on things",
+      "default": 3,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 46,
+      "text": "Am quiet around strangers",
+      "default": 4,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 47,
+      "text": "Make people feel at ease",
+      "default": 4,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 48,
+      "text": "Am exacting in my work",
+      "default": 3,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 49,
+      "text": "Often feel blue",
+      "default": 3,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 50,
+      "text": "Am full of ideas",
+      "default": 3,
+      "reverse": true,
+      "dimension": "O"
+    }
+  ],
+  "dimensionOrder": [
+    "E",
+    "A",
+    "C",
+    "N",
+    "O"
+  ],
+  "dimensionNames": {
+    "E": "Extraversion",
+    "A": "Agreeableness",
+    "C": "Conscientiousness",
+    "N": "Neuroticism",
+    "O": "Openness"
+  },
+  "means": {
+    "E": 3.1,
+    "A": 4.14,
+    "C": 3.88,
+    "N": 3.5,
+    "O": 3.68
+  },
+  "deviations": {
+    "E": 0.76,
+    "A": 0.55,
+    "C": 0.66,
+    "N": 0.72,
+    "O": 0.66
+  },
+  "scale": {
+    "1": "Very Inaccurate",
+    "2": "Moderately Inaccurate",
+    "3": "Neither Accurate nor Inaccurate",
+    "4": "Moderately Accurate",
+    "5": "Very Accurate"
+  }
+};
+
+    const STORAGE_KEY = "ipip_mbti_quiz_answers_v1";
+    const questionsEl = document.getElementById("questions");
+    const typeCodeEl = document.getElementById("typeCode");
+    const answeredCountEl = document.getElementById("answeredCount");
+    const progressBarEl = document.getElementById("progressBar");
+    const scoreRowsEl = document.getElementById("scoreRows");
+    const lettersEl = document.getElementById("letters");
+
+    function loadAnswers() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    let answers = loadAnswers();
+
+    function saveAnswers() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+    }
+
+    function renderQuestions() {
+      const scaleEntries = Object.entries(APP_DATA.scale);
+      questionsEl.innerHTML = APP_DATA.items.map(item => {
+        const choices = scaleEntries.map(([value, label]) => `
+          <label class="choice ${String(answers[item.id]) === value ? "selected" : ""}">
+            <input type="radio" name="q${item.id}" value="${value}" ${String(answers[item.id]) === value ? "checked" : ""}>
+            <strong>${value}</strong>
+            <span>${label}</span>
+          </label>
+        `).join("");
+
+        return `
+          <article class="question-card">
+            <div class="q-head">
+              <div class="q-num">${item.id}</div>
+              <div class="q-text">${escapeHtml(item.text)}</div>
+            </div>
+            <div class="scale" role="radiogroup" aria-label="Question ${item.id}">
+              ${choices}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      questionsEl.querySelectorAll("input[type='radio']").forEach(input => {
+        input.addEventListener("change", event => {
+          const id = event.target.name.replace("q", "");
+          answers[id] = Number(event.target.value);
+          saveAnswers();
+          renderSelectedStates();
+          updateResults();
+        });
+      });
+    }
+
+    function renderSelectedStates() {
+      document.querySelectorAll(".choice").forEach(label => {
+        const input = label.querySelector("input");
+        label.classList.toggle("selected", input.checked);
+      });
+    }
+
+    function calculate() {
+      const totals = Object.fromEntries(APP_DATA.dimensionOrder.map(dim => [dim, 0]));
+      const counts = Object.fromEntries(APP_DATA.dimensionOrder.map(dim => [dim, 0]));
+
+      APP_DATA.items.forEach(item => {
+        const raw = answers[item.id];
+        if (!raw) return;
+        const scored = item.reverse ? 6 - raw : raw;
+        totals[item.dimension] += scored;
+        counts[item.dimension] += 1;
+      });
+
+      const complete = APP_DATA.items.every(item => answers[item.id]);
+      const deltas = {};
+      const zScores = {};
+      APP_DATA.dimensionOrder.forEach(dim => {
+        const meanItemScore = counts[dim] === 10 ? totals[dim] / 10 : null;
+        deltas[dim] = meanItemScore === null ? null : meanItemScore - APP_DATA.means[dim];
+        zScores[dim] = deltas[dim] === null ? null : deltas[dim] / APP_DATA.deviations[dim];
+      });
+
+      const letters = {
+        EI: zScores.E === null ? "-" : (zScores.E > 0 ? "E" : "I"),
+        SN: zScores.O === null ? "-" : (zScores.O > 0 ? "S" : "N"),
+        FT: zScores.A === null ? "-" : (zScores.A > 0 ? "F" : "T"),
+        JP: zScores.C === null ? "-" : (zScores.C > 0 ? "P" : "J")
+      };
+
+      return {
+        totals,
+        counts,
+        deltas,
+        zScores,
+        letters,
+        type: `${letters.EI}${letters.SN}${letters.FT}${letters.JP}`,
+        complete
+      };
+    }
+
+    function updateResults() {
+      const result = calculate();
+      const answered = Object.keys(answers).filter(id => answers[id]).length;
+
+      answeredCountEl.textContent = answered;
+      progressBarEl.style.width = `${(answered / APP_DATA.items.length) * 100}%`;
+      typeCodeEl.textContent = result.type;
+
+      const letterLabels = [
+        ["EI", "Extraversion"],
+        ["SN", "Openness"],
+        ["FT", "Agreeableness"],
+        ["JP", "Conscientiousness"]
+      ];
+      lettersEl.innerHTML = letterLabels.map(([key, label]) => `
+        <div class="letter-box">
+          <strong>${result.letters[key]}</strong>
+          <span>${label}</span>
+        </div>
+      `).join("");
+
+      scoreRowsEl.innerHTML = APP_DATA.dimensionOrder.map(dim => {
+        const total = result.counts[dim] === 10 ? result.totals[dim].toFixed(0) : "—";
+        const delta = result.deltas[dim] === null ? "—" : result.deltas[dim].toFixed(2);
+        const z = result.zScores[dim] === null ? "—" : result.zScores[dim].toFixed(2);
+        return `
+          <tr>
+            <td title="${APP_DATA.dimensionNames[dim]}">${dim}</td>
+            <td>${total}</td>
+            <td>${delta}</td>
+            <td>${z}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function useDefaults() {
+      answers = {};
+      APP_DATA.items.forEach(item => answers[item.id] = item.default);
+      saveAnswers();
+      renderQuestions();
+      updateResults();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearAnswers() {
+      answers = {};
+      saveAnswers();
+      renderQuestions();
+      updateResults();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function exportResults() {
+      const result = calculate();
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        type: result.type,
+        answers,
+        totals: result.totals,
+        deltas: result.deltas,
+        zScores: result.zScores,
+        letters: result.letters
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ipip-mbti-results-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("useDefaults").addEventListener("click", useDefaults);
+    document.getElementById("clearAnswers").addEventListener("click", clearAnswers);
+    document.getElementById("exportResults").addEventListener("click", exportResults);
+
+    renderQuestions();
+    updateResults();
+  </script>
+</body>
+</html>
