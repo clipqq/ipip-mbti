@@ -1,0 +1,1055 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IPIP MBTI Assessment Quiz</title>
+  <style>
+    :root {
+      --bg: #f7f7f8;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --good: #ecfdf5;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 240px);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 18px 18px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      letter-spacing: -0.04em;
+    }
+    .subtitle {
+      color: var(--muted);
+      max-width: 780px;
+      margin: 0;
+    }
+    .layout {
+      max-width: 1280px;
+      margin: 0 auto 48px;
+      padding: 0 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(400px, 440px);
+      gap: 18px;
+      align-items: start;
+    }
+    .panel, .question-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+    .panel {
+      position: sticky;
+      top: 16px;
+      max-height: calc(100vh - 32px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-width: 0;
+      padding: 18px;
+      scrollbar-gutter: stable;
+    }
+    .type {
+      text-align: center;
+      background: var(--accent-soft);
+      border-radius: 16px;
+      padding: 18px 12px;
+      margin-bottom: 16px;
+    }
+    .type .label {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .type .code {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #1d4ed8;
+    }
+    .progress-wrap {
+      margin: 10px 0 16px;
+    }
+    .progress-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: #eef2f7;
+      overflow: hidden;
+    }
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.2s ease;
+    }
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 9px 12px;
+      cursor: pointer;
+      font-weight: 650;
+      color: var(--text);
+    }
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    button:hover { filter: brightness(0.98); }
+    .score-cards {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .score-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+      min-width: 0;
+    }
+    .score-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      min-width: 0;
+    }
+    .score-name { font-weight: 750; overflow-wrap: anywhere; }
+    .score-code {
+      color: var(--muted);
+      font-weight: 650;
+      font-size: 0.82rem;
+    }
+    .score-z {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+      font-size: 0.82rem;
+      text-align: right;
+      line-height: 1.25;
+    }
+    .score-z span {
+      display: block;
+      color: var(--muted);
+      font-weight: 650;
+      font-size: 0.74rem;
+    }
+    .mini-curve {
+      width: 100%;
+      height: 44px;
+      margin: 6px 0 4px;
+      display: block;
+    }
+    .mini-curve .curve-line {
+      fill: none;
+      stroke: #9ca3af;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+    .mini-curve .average-line {
+      stroke: #d1d5db;
+      stroke-width: 1.5;
+    }
+    .mini-curve .person-dot {
+      fill: var(--accent);
+      stroke: #fff;
+      stroke-width: 2;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.20));
+    }
+    .mini-curve text {
+      fill: var(--muted);
+      font-size: 8px;
+      font-weight: 650;
+    }
+    .score-plain {
+      font-size: 0.88rem;
+      line-height: 1.35;
+      margin: 7px 0 0;
+    }
+    .score-meta {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.35;
+      margin-top: 6px;
+    }
+    .score-help {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-top: 14px;
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .letters {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .letter-box {
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+    }
+    .letter-box strong {
+      display: block;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+    .letter-box span {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .note {
+      color: var(--muted);
+      font-size: 0.82rem;
+      margin: 12px 0 0;
+    }
+    .questions {
+      display: grid;
+      gap: 12px;
+    }
+    .question-card {
+      padding: 16px;
+    }
+    .q-head {
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .q-num {
+      min-width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: #f3f4f6;
+      border-radius: 50%;
+      font-weight: 750;
+      color: var(--muted);
+    }
+    .q-text {
+      font-size: 1.02rem;
+      font-weight: 680;
+    }
+    .scale {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .choice {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 9px 6px;
+      text-align: center;
+      cursor: pointer;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 3px;
+      background: #fff;
+      transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    }
+    .choice:hover {
+      border-color: #93c5fd;
+      transform: translateY(-1px);
+    }
+    .choice input { display: none; }
+    .choice:has(input:checked) {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+    .choice strong { font-size: 1rem; }
+    .choice span { font-size: 0.72rem; color: var(--muted); }
+    .footer-actions {
+      text-align: center;
+      padding: 18px 0 0;
+    }
+    @media (max-width: 980px) {
+      .layout {
+        max-width: 760px;
+        grid-template-columns: 1fr;
+      }
+      .panel {
+        position: static;
+        max-height: none;
+        overflow-y: visible;
+        width: 100%;
+      }
+    }
+    @media (max-width: 640px) {
+      header { padding: 24px 14px 14px; }
+      .layout { padding: 0 12px; gap: 14px; }
+      .panel, .question-card { border-radius: 14px; }
+      .panel { padding: 14px; }
+      .type .code { font-size: 2.4rem; }
+      .letters { grid-template-columns: repeat(2, 1fr); }
+      .score-top { gap: 8px; }
+      .score-z { font-size: 0.78rem; }
+      .scale { grid-template-columns: 1fr; }
+      .choice { min-height: auto; align-items: flex-start; padding: 11px 12px; }
+      .choice span { font-size: 0.82rem; }
+    }
+    @supports not selector(:has(*)) {
+      .choice.selected {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+        box-shadow: inset 0 0 0 1px var(--accent);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>IPIP MBTI Assessment Quiz</h1>
+    <p class="subtitle">
+      Rate each statement from 1 to 5. This app preserves the scoring logic from the spreadsheet: reverse-scored items are transformed as 6 − response, five dimension totals are standardized, and the final four-letter type is calculated from Extraversion, Openness, Agreeableness, and Conscientiousness.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section class="questions" id="questions"></section>
+
+    <aside class="panel" aria-live="polite">
+      <div class="type">
+        <div class="label">Current type</div>
+        <div class="code" id="typeCode">----</div>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-text"><span id="answeredCount">0</span> / 50 answered</div>
+        <div class="progress"><div id="progressBar"></div></div>
+      </div>
+
+      <div class="button-row">
+        <button class="primary" id="useDefaults">Use spreadsheet defaults</button>
+        <button id="clearAnswers">Clear</button>
+        <button id="exportResults">Export results</button>
+      </div>
+
+      <div class="letters" id="letters"></div>
+
+      <div class="score-help">
+        <strong>How to read this:</strong> Percentile shows where you fall compared with others. Z shows distance from average: 0 is average, + is more, − is less.
+      </div>
+
+      <div class="score-cards" id="scoreRows"></div>
+
+      <p class="note">
+        The curve shows where your score falls compared with the workbook average. Neuroticism is shown but not used in the four-letter type.
+      </p>
+    </aside>
+  </main>
+
+  <script>
+    const APP_DATA = {
+  "items": [
+    {
+      "id": 1,
+      "text": "Am the life of the party",
+      "default": 3,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 2,
+      "text": "Feel little concern for others",
+      "default": 4,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 3,
+      "text": "I am always prepared",
+      "default": 3,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 4,
+      "text": "Get stressed out easily",
+      "default": 3,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 5,
+      "text": "Have a rich vocabulary",
+      "default": 4,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 6,
+      "text": "Don’t talk a lot",
+      "default": 2,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 7,
+      "text": "Am interested in people",
+      "default": 5,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 8,
+      "text": "Leave my belongings around",
+      "default": 4,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 9,
+      "text": "Am relaxed most of the time",
+      "default": 4,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 10,
+      "text": "Have difficult difficulty understanding abstract ideas",
+      "default": 1,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 11,
+      "text": "Feel comfortable around people",
+      "default": 4,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 12,
+      "text": "Insult people",
+      "default": 2,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 13,
+      "text": "Pay attention to details",
+      "default": 4,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 14,
+      "text": "Worry about things",
+      "default": 3,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 15,
+      "text": "Have a vivid imagination",
+      "default": 4,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 16,
+      "text": "Keep in the background",
+      "default": 3,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 17,
+      "text": "Sympathize with other's feelings",
+      "default": 5,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 18,
+      "text": "Make a mess of things",
+      "default": 3,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 19,
+      "text": "Seldom feel blue",
+      "default": 2,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 20,
+      "text": "Not interested in abstract ideas",
+      "default": 1,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 21,
+      "text": "Start conversations",
+      "default": 3,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 22,
+      "text": "Not interested in other people’s problems",
+      "default": 1,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 23,
+      "text": "Get chores done right away",
+      "default": 2,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 24,
+      "text": "Am easily disturbed",
+      "default": 2,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 25,
+      "text": "Have excellent ideas",
+      "default": 3,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 26,
+      "text": "Have Little to say",
+      "default": 1,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 27,
+      "text": "Have a soft heart",
+      "default": 3,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 28,
+      "text": "Often forget to put things back in their proper place",
+      "default": 4,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 29,
+      "text": "Get upset easily",
+      "default": 3,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 30,
+      "text": "Do not have a good imagination",
+      "default": 2,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 31,
+      "text": "Talk to a lot of different people at parties",
+      "default": 5,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 32,
+      "text": "Not really interested in others",
+      "default": 1,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 33,
+      "text": "Like order",
+      "default": 3,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 34,
+      "text": "Change my mood a lot",
+      "default": 4,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 35,
+      "text": "Quick to understand things",
+      "default": 4,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 36,
+      "text": "Don’t like to draw attention to myself",
+      "default": 2,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 37,
+      "text": "Take time out for others",
+      "default": 3,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 38,
+      "text": "Shirk my duties",
+      "default": 3,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 39,
+      "text": "Have frequent mood swings",
+      "default": 3,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 40,
+      "text": "Use difficult words",
+      "default": 3,
+      "reverse": true,
+      "dimension": "O"
+    },
+    {
+      "id": 41,
+      "text": "Don’t mind being the center of attention",
+      "default": 2,
+      "reverse": false,
+      "dimension": "E"
+    },
+    {
+      "id": 42,
+      "text": "Feel other's emotions",
+      "default": 5,
+      "reverse": true,
+      "dimension": "A"
+    },
+    {
+      "id": 43,
+      "text": "Follow a schedule",
+      "default": 2,
+      "reverse": false,
+      "dimension": "C"
+    },
+    {
+      "id": 44,
+      "text": "Get irritated easily",
+      "default": 3,
+      "reverse": true,
+      "dimension": "N"
+    },
+    {
+      "id": 45,
+      "text": "Spend time reflecting on things",
+      "default": 3,
+      "reverse": false,
+      "dimension": "O"
+    },
+    {
+      "id": 46,
+      "text": "Am quiet around strangers",
+      "default": 4,
+      "reverse": true,
+      "dimension": "E"
+    },
+    {
+      "id": 47,
+      "text": "Make people feel at ease",
+      "default": 4,
+      "reverse": false,
+      "dimension": "A"
+    },
+    {
+      "id": 48,
+      "text": "Am exacting in my work",
+      "default": 3,
+      "reverse": true,
+      "dimension": "C"
+    },
+    {
+      "id": 49,
+      "text": "Often feel blue",
+      "default": 3,
+      "reverse": false,
+      "dimension": "N"
+    },
+    {
+      "id": 50,
+      "text": "Am full of ideas",
+      "default": 3,
+      "reverse": true,
+      "dimension": "O"
+    }
+  ],
+  "dimensionOrder": [
+    "E",
+    "A",
+    "C",
+    "N",
+    "O"
+  ],
+  "dimensionNames": {
+    "E": "Extraversion",
+    "A": "Agreeableness",
+    "C": "Conscientiousness",
+    "N": "Neuroticism",
+    "O": "Openness"
+  },
+  "means": {
+    "E": 3.1,
+    "A": 4.14,
+    "C": 3.88,
+    "N": 3.5,
+    "O": 3.68
+  },
+  "deviations": {
+    "E": 0.76,
+    "A": 0.55,
+    "C": 0.66,
+    "N": 0.72,
+    "O": 0.66
+  },
+  "scale": {
+    "1": "Very Inaccurate",
+    "2": "Moderately Inaccurate",
+    "3": "Neither Accurate nor Inaccurate",
+    "4": "Moderately Accurate",
+    "5": "Very Accurate"
+  }
+};
+
+    const STORAGE_KEY = "ipip_mbti_quiz_answers_v1";
+    const questionsEl = document.getElementById("questions");
+    const typeCodeEl = document.getElementById("typeCode");
+    const answeredCountEl = document.getElementById("answeredCount");
+    const progressBarEl = document.getElementById("progressBar");
+    const scoreRowsEl = document.getElementById("scoreRows");
+    const lettersEl = document.getElementById("letters");
+
+    function loadAnswers() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    let answers = loadAnswers();
+
+    function saveAnswers() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+    }
+
+    function renderQuestions() {
+      const scaleEntries = Object.entries(APP_DATA.scale);
+      questionsEl.innerHTML = APP_DATA.items.map(item => {
+        const choices = scaleEntries.map(([value, label]) => `
+          <label class="choice ${String(answers[item.id]) === value ? "selected" : ""}">
+            <input type="radio" name="q${item.id}" value="${value}" ${String(answers[item.id]) === value ? "checked" : ""}>
+            <strong>${value}</strong>
+            <span>${label}</span>
+          </label>
+        `).join("");
+
+        return `
+          <article class="question-card">
+            <div class="q-head">
+              <div class="q-num">${item.id}</div>
+              <div class="q-text">${escapeHtml(item.text)}</div>
+            </div>
+            <div class="scale" role="radiogroup" aria-label="Question ${item.id}">
+              ${choices}
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      questionsEl.querySelectorAll("input[type='radio']").forEach(input => {
+        input.addEventListener("change", event => {
+          const id = event.target.name.replace("q", "");
+          answers[id] = Number(event.target.value);
+          saveAnswers();
+          renderSelectedStates();
+          updateResults();
+        });
+      });
+    }
+
+    function renderSelectedStates() {
+      document.querySelectorAll(".choice").forEach(label => {
+        const input = label.querySelector("input");
+        label.classList.toggle("selected", input.checked);
+      });
+    }
+
+    function calculate() {
+      const totals = Object.fromEntries(APP_DATA.dimensionOrder.map(dim => [dim, 0]));
+      const counts = Object.fromEntries(APP_DATA.dimensionOrder.map(dim => [dim, 0]));
+
+      APP_DATA.items.forEach(item => {
+        const raw = answers[item.id];
+        if (!raw) return;
+        const scored = item.reverse ? 6 - raw : raw;
+        totals[item.dimension] += scored;
+        counts[item.dimension] += 1;
+      });
+
+      const complete = APP_DATA.items.every(item => answers[item.id]);
+      const deltas = {};
+      const zScores = {};
+      APP_DATA.dimensionOrder.forEach(dim => {
+        const meanItemScore = counts[dim] === 10 ? totals[dim] / 10 : null;
+        deltas[dim] = meanItemScore === null ? null : meanItemScore - APP_DATA.means[dim];
+        zScores[dim] = deltas[dim] === null ? null : deltas[dim] / APP_DATA.deviations[dim];
+      });
+
+      const letters = {
+        EI: zScores.E === null ? "-" : (zScores.E > 0 ? "E" : "I"),
+        SN: zScores.O === null ? "-" : (zScores.O > 0 ? "S" : "N"),
+        FT: zScores.A === null ? "-" : (zScores.A > 0 ? "F" : "T"),
+        JP: zScores.C === null ? "-" : (zScores.C > 0 ? "P" : "J")
+      };
+
+      return {
+        totals,
+        counts,
+        deltas,
+        zScores,
+        letters,
+        type: `${letters.EI}${letters.SN}${letters.FT}${letters.JP}`,
+        complete
+      };
+    }
+
+    function normalCdf(z) {
+      // Abramowitz-Stegun approximation; accurate enough for plain-language percentile context.
+      const sign = z < 0 ? -1 : 1;
+      const x = Math.abs(z) / Math.sqrt(2);
+      const t = 1 / (1 + 0.3275911 * x);
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429;
+      const erf = sign * (1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x));
+      return 0.5 * (1 + erf);
+    }
+
+    function describeZ(dim, z) {
+      if (z === null) {
+        return {
+          summary: "Finish this scale to see your result.",
+          meta: ""
+        };
+      }
+
+      const name = APP_DATA.dimensionNames[dim];
+      const absZ = Math.abs(z);
+      const moreLess = z >= 0 ? "more" : "less";
+      let strength;
+      if (absZ < 0.20) strength = "about average";
+      else if (absZ < 0.50) strength = "slightly";
+      else if (absZ < 1.00) strength = "somewhat";
+      else if (absZ < 1.50) strength = "clearly";
+      else if (absZ < 2.00) strength = "very";
+      else strength = "extremely";
+
+      const percentile = Math.max(1, Math.min(99, Math.round(normalCdf(z) * 100)));
+      const summary = absZ < 0.20
+        ? `${name}: about average.`
+        : `${name}: ${strength} ${moreLess} than average.`;
+      const meta = `About the ${percentile}${ordinalSuffix(percentile)} percentile.`;
+
+      return { summary, meta, percentile };
+    }
+
+    function ordinalSuffix(n) {
+      const v = n % 100;
+      if (v >= 11 && v <= 13) return "th";
+      if (n % 10 === 1) return "st";
+      if (n % 10 === 2) return "nd";
+      if (n % 10 === 3) return "rd";
+      return "th";
+    }
+
+    function bellCurveSvg(z) {
+      const width = 160;
+      const height = 44;
+      const baseY = 36;
+      const scaleY = 70;
+      const left = 10;
+      const right = 150;
+      const points = [];
+      for (let i = 0; i <= 80; i++) {
+        const xNorm = -3 + (i / 80) * 6;
+        const density = Math.exp(-0.5 * xNorm * xNorm) / Math.sqrt(2 * Math.PI);
+        const x = left + ((xNorm + 3) / 6) * (right - left);
+        const y = baseY - density * scaleY;
+        points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      }
+      const safeZ = z === null ? 0 : Math.max(-3, Math.min(3, z));
+      const dotX = left + ((safeZ + 3) / 6) * (right - left);
+      const density = Math.exp(-0.5 * safeZ * safeZ) / Math.sqrt(2 * Math.PI);
+      const dotY = baseY - density * scaleY;
+      return `
+        <svg class="mini-curve" viewBox="0 0 ${width} ${height}" role="img" aria-label="Your position on a normal curve">
+          <line class="average-line" x1="80" y1="8" x2="80" y2="37"></line>
+          <polyline class="curve-line" points="${points.join(' ')}"></polyline>
+          <line x1="10" y1="36" x2="150" y2="36" stroke="#e5e7eb" stroke-width="1"></line>
+          <circle class="person-dot" cx="${dotX.toFixed(1)}" cy="${dotY.toFixed(1)}" r="4.5"></circle>
+          <text x="80" y="43" text-anchor="middle">average</text>
+        </svg>
+      `;
+    }
+
+    function updateResults() {
+      const result = calculate();
+      const answered = Object.keys(answers).filter(id => answers[id]).length;
+
+      answeredCountEl.textContent = answered;
+      progressBarEl.style.width = `${(answered / APP_DATA.items.length) * 100}%`;
+      typeCodeEl.textContent = result.type;
+
+      const letterLabels = [
+        ["EI", "Extraversion"],
+        ["SN", "Openness"],
+        ["FT", "Agreeableness"],
+        ["JP", "Conscientiousness"]
+      ];
+      lettersEl.innerHTML = letterLabels.map(([key, label]) => `
+        <div class="letter-box">
+          <strong>${result.letters[key]}</strong>
+          <span>${label}</span>
+        </div>
+      `).join("");
+
+      scoreRowsEl.innerHTML = APP_DATA.dimensionOrder.map(dim => {
+        const total = result.counts[dim] === 10 ? result.totals[dim].toFixed(0) : "—";
+        const delta = result.deltas[dim] === null ? "—" : result.deltas[dim].toFixed(2);
+        const zValue = result.zScores[dim];
+        const z = zValue === null ? "—" : zValue.toFixed(2);
+        const interp = describeZ(dim, zValue);
+        const percentileLabel = zValue === null ? "Percentile: —" : `Percentile: ${interp.percentile}${ordinalSuffix(interp.percentile)}`;
+        const zLabel = zValue === null ? "Z: —" : `Z: ${z}`;
+        return `
+          <div class="score-card">
+            <div class="score-top">
+              <div>
+                <div class="score-name">${APP_DATA.dimensionNames[dim]}</div>
+                <div class="score-code">${dim} · total ${total}</div>
+              </div>
+              <div class="score-z">${percentileLabel}<span>${zLabel}</span></div>
+            </div>
+            ${bellCurveSvg(zValue)}
+            <p class="score-plain">${interp.summary}</p>
+            <div class="score-meta">${interp.meta}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function useDefaults() {
+      answers = {};
+      APP_DATA.items.forEach(item => answers[item.id] = item.default);
+      saveAnswers();
+      renderQuestions();
+      updateResults();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearAnswers() {
+      answers = {};
+      saveAnswers();
+      renderQuestions();
+      updateResults();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function exportResults() {
+      const result = calculate();
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        type: result.type,
+        answers,
+        totals: result.totals,
+        deltas: result.deltas,
+        zScores: result.zScores,
+        interpretations: Object.fromEntries(APP_DATA.dimensionOrder.map(dim => [dim, describeZ(dim, result.zScores[dim])])),
+        letters: result.letters
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ipip-mbti-results-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    document.getElementById("useDefaults").addEventListener("click", useDefaults);
+    document.getElementById("clearAnswers").addEventListener("click", clearAnswers);
+    document.getElementById("exportResults").addEventListener("click", exportResults);
+
+    renderQuestions();
+    updateResults();
+  </script>
+</body>
+</html>
